@@ -190,12 +190,33 @@ return {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
+    ---@type snacks.Config
     opts = {
       -- your configuration comes here
       -- or leave it empty to use the default settings
       -- refer to the configuration section below
       bigfile = { enabled = true },
-      dashboard = { enabled = true },
+      dashboard = {
+        sections = {
+          -- {
+          --   section = "terminal",
+          --   cmd =
+          --   "chafa ~/.config/nvim/lua/plugins/dashboard.png -c 240 --size 60 --format symbols --symbols=braille --stretch; sleep .1",
+          --   height = 60,
+          --   padding = 1,
+          -- },
+          {
+            -- pane = 2,
+            {
+              section = "terminal",
+              cmd = "figlet NeoVim | lolcat",
+              padding = 1,
+            },
+            { section = "keys",   gap = 1, padding = 1 },
+            { section = "startup" },
+          }
+        }
+      },
       explorer = { enabled = true },
       indent = { enabled = true, },
       input = { enabled = true },
@@ -251,8 +272,7 @@ return {
         desc = "Snacks: Search todo Comments",
       },
     },
-    config = function()
-      Snacks.dashboard.setup()
+    init = function()
       vim.api.nvim_create_autocmd("BufReadPost", {
         callback = function()
           if vim.bo.filetype ~= "" then
@@ -263,15 +283,13 @@ return {
     end
   },
 
+  -- コメントを見やすくする
+  { "LudoPinelli/comment-box.nvim", },
+
   -- todoを見やすくする
   {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    }
   },
 
   -- ツリー状にコードを整形
@@ -294,12 +312,24 @@ return {
   {
     "shortcuts/no-neck-pain.nvim",
     version = "*",
+    lazy = false,
     config = function()
       require("no-neck-pain").setup({
+        buffers = {
+          right = {
+            enabled = false,
+          },
+          scratchPad = {
+            enabled = true,
+            location = "~/notes"
+          },
+          bo = {
+            filetype = "md",
+          },
+        },
         autocmds = {
-          enableOnVimEnter = true,
+          -- enableOnVimEnter = true,
           enableOnTabEnter = true,
-          reloadOnColorSchemeChange = true,
         },
       })
       vim.keymap.set({ "n", "x", "o" }, "<Leader>z", "<cmd>NoNeckPain<CR>", { desc = "no-neck-pain: Toggle" })
@@ -329,9 +359,9 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     config = function()
-      require("nvim-treesitter").setup({
+      require("nvim-treesitter.configs").setup {
         -- A list of parser names, or "all" (the listed parsers MUST always be installed)
-        ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown" },
+        ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "elixir", "heex", "eex", "rust", "scala" },
 
         -- Install parsers synchronously (only applied to `ensure_installed`)
         sync_install = false,
@@ -353,10 +383,9 @@ return {
           -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
           -- the name of the parser)
           -- list of language that will be disabled
-          disable = { "c", "rust" },
           -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
           disable = function(lang, buf)
-            local max_filesize = 100 * 1024     -- 100 KB
+            local max_filesize = 100 * 1024 -- 100 KB
             local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
             if ok and stats and stats.size > max_filesize then
               return true
@@ -369,11 +398,11 @@ return {
           -- Instead of true it can also be a list of languages
           additional_vim_regex_highlighting = false,
         }
-      })
+      }
     end
   },
   -- 画面上部にコードブロックを表示
-   {
+  {
     "nvim-treesitter/nvim-treesitter-context",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
@@ -560,7 +589,7 @@ return {
   -- cs"' 系の補完を有効化する
   {
     "kylechui/nvim-surround",
-    version = "^3.0.0",   -- Use for stability; omit to use `main` branch for the latest features
+    version = "^3.0.0", -- Use for stability; omit to use `main` branch for the latest features
     event = "VeryLazy",
     config = function()
       require("nvim-surround").setup({
@@ -675,7 +704,7 @@ return {
     priority = 1000,    -- needs to be loaded in first
     config = function()
       require('tiny-inline-diagnostic').setup()
-      vim.diagnostic.config({ virtual_text = false })   -- Only if needed in your configuration, if you already have native LSP diagnostics
+      vim.diagnostic.config({ virtual_text = false }) -- Only if needed in your configuration, if you already have native LSP diagnostics
     end
   },
 
@@ -772,24 +801,24 @@ return {
   },
 
   -- GitHub Copilot
-  {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
-    config = function()
-      require("copilot").setup({
-        suggestion = {
-          -- enabled = false
-          auto_trigger = true,
-          keymap = {
-            accept = "<f13>",
-          }
-        },
-        panel = { enabled = false },
-        copilot_node_command = 'node',
-      })
-    end,
-  },
+  -- {
+  --   "zbirenbaum/copilot.lua",
+  --   cmd = "Copilot",
+  --   event = "InsertEnter",
+  --   config = function()
+  --     require("copilot").setup({
+  --       suggestion = {
+  --         -- enabled = false,
+  --         auto_trigger = true,
+  --         keymap = {
+  --           accept = "<f13>",
+  --         }
+  --       },
+  --       panel = { enabled = false },
+  --       copilot_node_command = 'node',
+  --     })
+  --   end,
+  -- },
 
   -- AI Coding
   {

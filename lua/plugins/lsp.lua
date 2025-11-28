@@ -1,4 +1,31 @@
 return {
+  -- Linter
+  {
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      local lint = require("lint")
+
+      lint.linters_by_ft = {
+        terraform = { "tfsec" },
+        tf = { "tfsec" },
+      }
+
+      -- 保存時に自動実行
+      vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+        callback = function()
+          lint.try_lint()
+        end,
+      })
+
+      -- 手動実行コマンド
+      vim.keymap.set("n", "<leader>lt", function()
+        lint.try_lint()
+      end, { desc = "nvim-lint: Run tfsec" })
+    end,
+  },
+
+
   -- カスタムスニペットを使えるようにする
   {
     "L3MON4D3/LuaSnip",
@@ -18,20 +45,36 @@ return {
   },
 
   -- LSP本体
- {
+  {
     'neovim/nvim-lspconfig',
-    dependencies = { 
+    dependencies = {
       'saghen/blink.cmp',
-      -- 'mason-org/mason-lspconfig.nvim',
     },
     config = function()
+      -- LSPの設定
       local lspconfig = require('lspconfig')
       local blink = require('blink.cmp')
 
       -- blink.cmpのcapabilitiesを取得
       local capabilities = blink.get_lsp_capabilities()
 
-      -- LSPの設定
+      -- lspconfigで定義されていないLSPサーバーの設定
+
+      -- Protobuf LSP
+      lspconfig.buf_ls.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        filetypes = { "proto" },
+        root_dir = lspconfig.util.root_pattern(".git"),
+      })
+
+      -- Terraform / Opentofu
+      vim.cmd("autocmd BufNewFile,BufRead *.tf set filetype=terraform")
+      lspconfig.terraformls.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        filetypes = { "terraform", "tf" }
+      })
 
       -- Lua LSP (lua-language-server)
       lspconfig.lua_ls.setup({
@@ -43,7 +86,7 @@ return {
               version = 'LuaJIT',
             },
             diagnostics = {
-              globals = {'vim'},
+              globals = { 'vim' },
             },
             workspace = {
               library = vim.api.nvim_get_runtime_file("", true),
@@ -63,7 +106,7 @@ return {
           pylsp = {
             plugins = {
               pycodestyle = {
-                ignore = {'W391'},
+                ignore = { 'W391' },
                 maxLineLength = 100
               }
             }
@@ -91,8 +134,8 @@ return {
       lspconfig.gopls.setup({
         capabilities = capabilities,
         on_attach = on_attach,
-        cmd = {"gopls"},
-        filetypes = {"go", "gomod", "gowork", "gotmpl"},
+        cmd = { "gopls" },
+        filetypes = { "go", "gomod", "gowork", "gotmpl" },
         settings = {
           gopls = {
             completeUnimported = true,
@@ -117,13 +160,38 @@ return {
           "--function-arg-placeholders",
           "--fallback-style=llvm",
         },
+        filetypes = { "c", "cpp", "objc", "objcpp" },
+        root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
+      })
+
+      -- elixir-ls
+      lspconfig.elixirls.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        cmd = {
+          "elixir-ls"
+        },
+        filetypes = { "elixir", "eelixir", "heex", "surface" },
+        root_dir = lspconfig.util.root_pattern("mix.exs", ".git"),
+        settings = {
+          elixirLs = {
+            suggestSpecs = true,
+            dialyzerEnabled = true,
+            mixEnv = "dev",
+            fetchDeps = false,
+            additionalWatchedExtensions = { "heex" },
+            projectDir = "",
+            enableTestLenses = true,
+            mixFormat = true,
+          }
+        }
       })
 
       -- HTML LSP
       lspconfig.html.setup({
         capabilities = capabilities,
         on_attach = on_attach,
-        filetypes = {"html"},
+        filetypes = { "html" },
         init_options = {
           configurationSection = { "html", "css", "javascript" },
           embeddedLanguages = {
@@ -138,13 +206,7 @@ return {
       lspconfig.bashls.setup({
         capabilities = capabilities,
         on_attach = on_attach,
-        filetypes = {"sh", "bash"},
-      })
-
-      -- Dockerfile LSP
-      lspconfig.dockerls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
+        filetypes = { "sh", "bash", "zsh" },
       })
 
       -- Docker Compose LSP
@@ -274,25 +336,25 @@ return {
   },
 
   -- Haskell
-  {
-    'mrcjkb/haskell-tools.nvim',
-    version = '^5', -- Recommended
-    lazy = false,
-    config = function()
-      local ht = require('haskell-tools')
-      local bufnr = vim.api.nvim_get_current_buf()
-      local opts = { noremap = true, silent = true, buffer = bufnr, }
-
-      vim.keymap.set('n', '<space>ll', vim.lsp.codelens.run, opts)
-      vim.keymap.set('n', '<space>la', ht.hoogle.hoogle_signature, opts)
-      vim.keymap.set('n', '<space>le', ht.lsp.buf_eval_all, opts)
-      vim.keymap.set('n', '<leader>lr', ht.repl.toggle, opts)
-      vim.keymap.set('n', '<leader>lb', function()
-        ht.repl.toggle(vim.api.nvim_buf_get_name(0))
-      end, opts)
-      vim.keymap.set('n', '<leader>lq', ht.repl.quit, opts)
-    end
-  },
+  -- {
+  --   'mrcjkb/haskell-tools.nvim',
+  --   version = '^5', -- Recommended
+  --   lazy = false,
+  --   config = function()
+  --     local ht = require('haskell-tools')
+  --     local bufnr = vim.api.nvim_get_current_buf()
+  --     local opts = { noremap = true, silent = true, buffer = bufnr, }
+  --
+  --     vim.keymap.set('n', '<space>ll', vim.lsp.codelens.run, opts, desc = "Haskell-tools: Run code lens")
+  --     vim.keymap.set('n', '<space>la', ht.hoogle.hoogle_signature, opts, desc = "Haskell-tools: Hoogle signature")
+  --     vim.keymap.set('n', '<space>le', ht.lsp.buf_eval_all, opts, desc = "Haskell-tools: Eval all")
+  --     vim.keymap.set('n', '<leader>lr', ht.repl.toggle, opts, desc = "Haskell-tools: Toggle REPL")
+  --     vim.keymap.set('n', '<leader>lb', function()
+  --       ht.repl.toggle(vim.api.nvim_buf_get_name(0))
+  --     end, opts, desc = "Haskell-tools: Toggle REPL (buffer)")
+  --     vim.keymap.set('n', '<leader>lq', ht.repl.quit, opts, desc = "Haskell-tools: Quit REPL")
+  --   end
+  -- },
 
   -- Metals (Scala LSP)
   {
@@ -319,5 +381,5 @@ return {
         group = nvim_metals_group,
       })
     end
-  }
+  },
 }
