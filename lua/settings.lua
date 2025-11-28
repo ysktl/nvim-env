@@ -63,7 +63,6 @@ vim.opt.mouse = "a"
 
 -- 色設定（お好みに応じて）
 vim.cmd [[
-  syntax enable
   filetype plugin indent on
 ]]
 
@@ -74,7 +73,7 @@ vim.opt.termguicolors = true
 vim.opt.winblend = 0
 
 -- ポップアップメニューの不透明度
-vim.opt.pumblend = 0 
+vim.opt.pumblend = 0
 
 -- コマンド補完をメニューから選択可能に
 vim.opt.wildmenu = true
@@ -91,3 +90,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
+-- 自動で改行コードを修正
+vim.opt.fixendofline = true
+vim.opt.endofline = true
