@@ -27,11 +27,7 @@ keymap('n', 'sK', '<C-w>K', { desc = "ウィンドウを上に移動" })
 
 -- タブ
 keymap('n', '<Leader>n', ':tabnew<CR>', { desc = "新しいタブを開く" })
-keymap('n', '<Leader>l', ':tabn<CR>', { desc = "次のタブに移動" })
-keymap('n', '<Leader>h', ':tabp<CR>', { desc = "前のタブに移動" })
 
--- Tagbar 切替
-keymap("n", "<Leader>t", ":TagbarToggle<CR>", { desc = "[]Tagbar]: 表示切り替え" })
 
 -- LSPベースのジャンプ（nvim-lspconfig）
 keymap("n", "<Leader>ld", vim.lsp.buf.definition, { noremap = true, silent = true, desc = "[LSP]: 定義を表示" })
