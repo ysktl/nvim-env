@@ -1,385 +1,460 @@
 return {
-  -- Linter
-  {
-    "mfussenegger/nvim-lint",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      local lint = require("lint")
+	-- Linter
+	{
+		"stevearc/conform.nvim",
+		opts = {},
+		config = function()
+			local js_formatters = { "biome", "prettierd", "prettier" }
+			require("conform").setup({
+				formatters_by_ft = {
+					-- Lua
+					lua = { "stylua" },
 
-      lint.linters_by_ft = {
-        terraform = { "tfsec" },
-        tf = { "tfsec" },
-      }
+					-- C, C++
+					clang = { "clang_format" },
+					cmake = { "cmake_format" },
 
-      -- 保存時に自動実行
-      vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-        callback = function()
-          lint.try_lint()
-        end,
-      })
+					-- Python
+					python = { "isort", "black" },
 
-      -- 手動実行コマンド
-      vim.keymap.set("n", "<leader>lt", function()
-        lint.try_lint()
-      end, { desc = "nvim-lint: Run tfsec" })
-    end,
-  },
+					-- Golang
+					golang = { "gofmt", "goimports" },
 
+					-- Rust
+					rust = { "rustfmt", lsp_format = "fallback" },
 
-  -- カスタムスニペットを使えるようにする
-  {
-    "L3MON4D3/LuaSnip",
-    version = "v2.*",
-    build = "make install_jsregexp",
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-    },
-    config = function()
-      local ls = require("luasnip")
-      require("luasnip.loaders.from_lua").lazy_load({
-        paths = "~/.config/nvim/lua/snippets",
-      })
-      require("luasnip.loaders.from_vscode").lazy_load() -- friendly-snippets を併用したい場合
-      vim.keymap.set('n', '<leader>@', require("luasnip.loaders").edit_snippet_files, { desc = "Edit snippets" })
-    end
-  },
+					-- Crystal
+					crystal = { "crystal" },
 
-  -- LSP本体
-  {
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      'saghen/blink.cmp',
-    },
-    config = function()
-      -- LSPの設定
-      local lspconfig = require('lspconfig')
-      local blink = require('blink.cmp')
+					-- YAML
+					yaml = { "yamlfmt" },
 
-      -- blink.cmpのcapabilitiesを取得
-      local capabilities = blink.get_lsp_capabilities()
+					-- TOML
+					toml = { "tombi" },
 
-      -- lspconfigで定義されていないLSPサーバーの設定
+					-- Protobuf
+					protobuf = { "buf" },
 
-      -- Protobuf LSP
-      lspconfig.buf_ls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        filetypes = { "proto" },
-        root_dir = lspconfig.util.root_pattern(".git"),
-      })
+					-- Dockerfile
+					docker = { "dockerfmt" },
 
-      -- Terraform / Opentofu
-      vim.cmd("autocmd BufNewFile,BufRead *.tf set filetype=terraform")
-      lspconfig.terraformls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        filetypes = { "terraform", "tf" }
-      })
+					-- Terraform
+					terraform = { "terraform_fmt" },
 
-      -- Lua LSP (lua-language-server)
-      lspconfig.lua_ls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        settings = {
-          Lua = {
-            runtime = {
-              version = 'LuaJIT',
-            },
-            diagnostics = {
-              globals = { 'vim' },
-            },
-            workspace = {
-              library = vim.api.nvim_get_runtime_file("", true),
-            },
-            telemetry = {
-              enable = false,
-            },
-          },
-        },
-      })
+					-- Ansible
+					ansible = { "ansible-lint" },
 
-      -- Python LSP (pylsp)
-      lspconfig.pylsp.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        settings = {
-          pylsp = {
-            plugins = {
-              pycodestyle = {
-                ignore = { 'W391' },
-                maxLineLength = 100
-              }
-            }
-          }
-        }
-      })
+					-- KCL
+					kcl = { "kcl" },
 
-      -- Rust LSP (rust-analyzer)
-      lspconfig.rust_analyzer.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        settings = {
-          ["rust-analyzer"] = {
-            cargo = {
-              allFeatures = true,
-            },
-            checkOnSave = {
-              command = "clippy",
-            },
-          },
-        },
-      })
+					-- HTML
+					html = { "html_beautify" },
 
-      -- Go LSP (gopls)
-      lspconfig.gopls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        cmd = { "gopls" },
-        filetypes = { "go", "gomod", "gowork", "gotmpl" },
-        settings = {
-          gopls = {
-            completeUnimported = true,
-            usePlaceholders = true,
-            analyses = {
-              unusedparams = true,
-            },
-          },
-        },
-      })
+					-- CSS
+					css = { "css_beautify" },
 
-      -- C/C++ LSP (clangd)
-      lspconfig.clangd.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        cmd = {
-          "clangd",
-          "--background-index",
-          "--clang-tidy",
-          "--header-insertion=iwyu",
-          "--completion-style=detailed",
-          "--function-arg-placeholders",
-          "--fallback-style=llvm",
-        },
-        filetypes = { "c", "cpp", "objc", "objcpp" },
-        root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
-      })
+					-- JavaScript
+					json = js_formatters,
+					javascript = js_formatters,
+					javascriptreact = js_formatters,
+					typescript = js_formatters,
+					typescriptreact = js_formatters,
+					astro = js_formatters,
 
-      -- elixir-ls
-      lspconfig.elixirls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        cmd = {
-          "elixir-ls"
-        },
-        filetypes = { "elixir", "eelixir", "heex", "surface" },
-        root_dir = lspconfig.util.root_pattern("mix.exs", ".git"),
-        settings = {
-          elixirLs = {
-            suggestSpecs = true,
-            dialyzerEnabled = true,
-            mixEnv = "dev",
-            fetchDeps = false,
-            additionalWatchedExtensions = { "heex" },
-            projectDir = "",
-            enableTestLenses = true,
-            mixFormat = true,
-          }
-        }
-      })
+					-- Deno
+					deno = { "deno_fmt" },
 
-      -- HTML LSP
-      lspconfig.html.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        filetypes = { "html" },
-        init_options = {
-          configurationSection = { "html", "css", "javascript" },
-          embeddedLanguages = {
-            css = true,
-            javascript = true
-          },
-          provideFormatter = true
-        }
-      })
+					-- Markdown
+					markdown = { "markdownlint-cli2" },
 
-      -- Bash LSP
-      lspconfig.bashls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-        filetypes = { "sh", "bash", "zsh" },
-      })
+					-- SQL
+					sql = { "sqlfmt", "sqruff" },
 
-      -- Docker Compose LSP
-      lspconfig.docker_compose_language_service.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
+					-- PostgreSQL
+					postgresql = { "pg_format" },
 
-      -- Markdown LSP (markdown-oxide)
-      lspconfig.markdown_oxide.setup({
-        capabilities = capabilities,
-      })
+					-- CockroachDB
+					cockroachdb = { "crlfmt" },
+				},
+				format_on_save = {
+					timeout_ms = 2000,
+					lsp_format = "fallback",
+					lsp_fallback = true,
+					quiet = false,
+				},
+			})
+		end,
+	},
 
-      -- Node.js
-      local is_node_dir = function()
-        return lspconfig.util.root_pattern('package.json')(vim.fn.getcwd())
-      end
+	-- LSP本体
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"saghen/blink.cmp",
+		},
+		config = function()
+			-- LSPの設定
+			local lspconfig = require("lspconfig")
+			local blink = require("blink.cmp")
 
-      -- ts_ls
-      local ts_opts = {
-        capabilities = capabilities,
-        init_options = {
-          preferences = {
-            importModuleSpecifierPreference = "relative",
-            includeCompletionsForModuleExports = "auto",
-          },
-        },
-        settings = {
-          typescript = {
-            preferences = {
-              importModuleSpecifier = "relative",
-            },
-            suggest = {
-              includeCompletionsForModuleExports = true,
-            }
-          },
-          javascript = {
-            preferences = {
-              importModuleSpecifier = "relative",
-            },
-            suggest = {
-              includeCompletionsForModuleExports = true,
-            }
-          },
-        },
-      }
-      ts_opts.on_attach = function(client)
-        if not is_node_dir() then
-          client.stop(true)
-        end
-      end
-      lspconfig.ts_ls.setup(ts_opts)
+			-- blink.cmpのcapabilitiesを取得
+			local capabilities = blink.get_lsp_capabilities()
 
-      -- denols
-      local deno_opts = {
-        capabilities = capabilities,
-        root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc", "tsconfig.json", "jsconfig.json", ".git"),
-        init_options = {
-          lint = true,
-          unstable = true,
-          suggest = {
-            paths = true,
-            autoImports = true,
-          },
-        },
-        settings = {
-          deno = {
-            enable = true,
-            lint = true,
-            unstable = true,
-            suggest = {
-              paths = true,
-              autoImports = true,
-            },
-          },
-        },
-      }
-      deno_opts.on_attach = function(client)
-        if is_node_dir() then
-          client.stop(true)
-        end
-      end
-      lspconfig.denols.setup(deno_opts)
-    end
-  },
+			-- on_attach
+			function on_attach(on_attach)
+				vim.api.nvim_create_autocmd("LspAttach", {
+					callback = function(args)
+						local buffer = args.buf
+						local client = vim.lsp.get_client_by_id(args.data.client_id)
+						on_attach(client, buffer)
+					end,
+				})
+			end
 
-  {
-    'saghen/blink.cmp',
-    dependencies = { 'rafamadriz/friendly-snippets' },
+			on_attach(function(client, buffer)
+				-- on_attach 共通設定
+			end)
 
-    build = "cargo build --release",
-    opts = {
-      -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
-      -- 'super-tab' for mappings similar to vscode (tab to accept)
-      -- 'enter' for enter to accept
-      -- 'none' for no mappings
-      --
-      -- All presets have the following mappings:
-      -- C-space: Open menu or open docs if already open
-      -- C-n/C-p or Up/Down: Select next/previous item
-      -- C-e: Hide menu
-      -- C-k: Toggle signature help (if signature.enabled = true)
-      --
-      -- See :h blink-cmp-config-keymap for defining your own keymap
-      keymap = { preset = 'super-tab' },
+			-- lspconfigで定義されていないLSPサーバーの設定
 
-      appearance = {
-        nerd_font_variant = 'mono'
-      },
+			-- Protobuf LSP
+			lspconfig.buf_ls.setup({
+				capabilities = capabilities,
+				filetypes = { "proto" },
+				root_dir = lspconfig.util.root_pattern(".git"),
+			})
 
-      -- (Default) Only show the documentation popup when manually triggered
-      completion = { documentation = { auto_show = true } },
+			-- Terraform / Opentofu
+			vim.cmd("autocmd BufNewFile,BufRead *.tf set filetype=terraform")
+			lspconfig.terraformls.setup({
+				capabilities = capabilities,
+				filetypes = { "terraform", "tf" },
+			})
 
-      sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer' },
-      },
+			-- Yaml-Language-Server
+			lspconfig.yamlls.setup({
+				capabilities = capabilities,
+				filetypes = { "yaml", "yml" },
+				cmd = { "yaml-language-server", "--stdio" },
+			})
 
-      fuzzy = { implementation = "prefer_rust_with_warning" },
-    },
-    opts_extend = { "sources.default" }
-  },
+			-- Lua LSP (lua-language-server)
+			lspconfig.lua_ls.setup({
+				capabilities = capabilities,
+				settings = {
+					Lua = {
+						runtime = {
+							version = "LuaJIT",
+						},
+						diagnostics = {
+							globals = { "vim" },
+						},
+						workspace = {
+							library = vim.api.nvim_get_runtime_file("", true),
+						},
+						telemetry = {
+							enable = false,
+						},
+					},
+				},
+			})
 
-  -- JSON スキーマサポート（jsonls用）
-  {
-    "b0o/schemastore.nvim",
-    ft = "json",
-  },
+			-- Python LSP (pylsp)
+			lspconfig.pylsp.setup({
+				capabilities = capabilities,
+				settings = {
+					pylsp = {
+						plugins = {
+							pycodestyle = {
+								ignore = { "W391" },
+								maxLineLength = 100,
+							},
+						},
+					},
+				},
+			})
 
-  -- Haskell
-  -- {
-  --   'mrcjkb/haskell-tools.nvim',
-  --   version = '^5', -- Recommended
-  --   lazy = false,
-  --   config = function()
-  --     local ht = require('haskell-tools')
-  --     local bufnr = vim.api.nvim_get_current_buf()
-  --     local opts = { noremap = true, silent = true, buffer = bufnr, }
-  --
-  --     vim.keymap.set('n', '<space>ll', vim.lsp.codelens.run, opts, desc = "Haskell-tools: Run code lens")
-  --     vim.keymap.set('n', '<space>la', ht.hoogle.hoogle_signature, opts, desc = "Haskell-tools: Hoogle signature")
-  --     vim.keymap.set('n', '<space>le', ht.lsp.buf_eval_all, opts, desc = "Haskell-tools: Eval all")
-  --     vim.keymap.set('n', '<leader>lr', ht.repl.toggle, opts, desc = "Haskell-tools: Toggle REPL")
-  --     vim.keymap.set('n', '<leader>lb', function()
-  --       ht.repl.toggle(vim.api.nvim_buf_get_name(0))
-  --     end, opts, desc = "Haskell-tools: Toggle REPL (buffer)")
-  --     vim.keymap.set('n', '<leader>lq', ht.repl.quit, opts, desc = "Haskell-tools: Quit REPL")
-  --   end
-  -- },
+			-- Rust LSP (rust-analyzer)
+			lspconfig.rust_analyzer.setup({
+				capabilities = capabilities,
+				settings = {
+					["rust-analyzer"] = {
+						cargo = {
+							allFeatures = true,
+						},
+						checkOnSave = {
+							command = "clippy",
+						},
+					},
+				},
+			})
 
-  -- Metals (Scala LSP)
-  {
-    "scalameta/nvim-metals",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    ft = { "scala", "sbt", "java" },
-    opts = function()
-      local metals_config = require("metals").bare_config()
-      metals_config.on_attach = function(client, bufnr)
-        -- your on_attach function
-      end
+			-- Go LSP (gopls)
+			lspconfig.gopls.setup({
+				capabilities = capabilities,
+				cmd = { "gopls" },
+				filetypes = { "go", "gomod", "gowork", "gotmpl" },
+				settings = {
+					gopls = {
+						completeUnimported = true,
+						usePlaceholders = true,
+						analyses = {
+							unusedparams = true,
+						},
+					},
+				},
+			})
 
-      return metals_config
-    end,
-    config = function(self, metals_config)
-      local nvim_metals_group = vim.api.nvim_create_augroup("nvim-metals", { clear = true })
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = self.ft,
-        callback = function()
-          require("metals").initialize_or_attach(metals_config)
-        end,
-        group = nvim_metals_group,
-      })
-    end
-  },
+			-- C/C++ LSP (clangd)
+			lspconfig.clangd.setup({
+				capabilities = capabilities,
+				cmd = {
+					"clangd",
+					"--background-index",
+					"--clang-tidy",
+					"--header-insertion=iwyu",
+					"--completion-style=detailed",
+					"--function-arg-placeholders",
+					"--fallback-style=llvm",
+				},
+				filetypes = { "c", "cpp", "objc", "objcpp" },
+				root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
+			})
+
+			-- elixir-ls
+			lspconfig.elixirls.setup({
+				capabilities = capabilities,
+				cmd = {
+					"elixir-ls",
+				},
+				filetypes = { "elixir", "eelixir", "heex", "surface" },
+				root_dir = lspconfig.util.root_pattern("mix.exs", ".git"),
+				settings = {
+					elixirLs = {
+						suggestSpecs = true,
+						dialyzerEnabled = true,
+						mixEnv = "dev",
+						fetchDeps = false,
+						additionalWatchedExtensions = { "heex" },
+						projectDir = "",
+						enableTestLenses = true,
+						mixFormat = true,
+					},
+				},
+			})
+
+			-- HTML LSP
+			lspconfig.html.setup({
+				capabilities = capabilities,
+				filetypes = { "html" },
+				init_options = {
+					configurationSection = { "html", "css", "javascript" },
+					embeddedLanguages = {
+						css = true,
+						javascript = true,
+					},
+					provideFormatter = true,
+				},
+			})
+
+			-- Bash LSP
+			lspconfig.bashls.setup({
+				capabilities = capabilities,
+				filetypes = { "sh", "bash", "zsh" },
+			})
+
+			-- Ballerina
+			lspconfig.ballerina.setup({
+				capabilities = capabilities,
+				cmd = { "bal", "start-language-server" },
+				filetypes = { "ballerina" },
+				root_dir = lspconfig.util.root_pattern("Ballerina.toml"),
+			})
+
+			-- Docker Compose LSP
+			lspconfig.docker_compose_language_service.setup({
+				capabilities = capabilities,
+			})
+
+			-- Markdown LSP (markdown-oxide)
+			lspconfig.markdown_oxide.setup({
+				capabilities = capabilities,
+			})
+
+			-- Node.js
+			local is_node_dir = function()
+				return lspconfig.util.root_pattern("package.json")(vim.fn.getcwd())
+			end
+
+			-- ts_ls
+			local ts_opts = {
+				capabilities = capabilities,
+				init_options = {
+					preferences = {
+						importModuleSpecifierPreference = "relative",
+						includeCompletionsForModuleExports = "auto",
+					},
+				},
+				settings = {
+					typescript = {
+						preferences = {
+							importModuleSpecifier = "relative",
+						},
+						suggest = {
+							includeCompletionsForModuleExports = true,
+						},
+					},
+					javascript = {
+						preferences = {
+							importModuleSpecifier = "relative",
+						},
+						suggest = {
+							includeCompletionsForModuleExports = true,
+						},
+					},
+				},
+			}
+			ts_opts.on_attach = function(client)
+				if not is_node_dir() then
+					client.stop(true)
+				end
+			end
+			lspconfig.ts_ls.setup(ts_opts)
+
+			-- denols
+			local deno_opts = {
+				capabilities = capabilities,
+				root_dir = lspconfig.util.root_pattern(
+					"deno.json",
+					"deno.jsonc",
+					"tsconfig.json",
+					"jsconfig.json",
+					".git"
+				),
+				init_options = {
+					lint = true,
+					unstable = true,
+					suggest = {
+						paths = true,
+						autoImports = true,
+					},
+				},
+				settings = {
+					deno = {
+						enable = true,
+						lint = true,
+						unstable = true,
+						suggest = {
+							paths = true,
+							autoImports = true,
+						},
+					},
+				},
+			}
+			deno_opts.on_attach = function(client)
+				if is_node_dir() then
+					client.stop(true)
+				end
+			end
+			lspconfig.denols.setup(deno_opts)
+		end,
+	},
+
+	{
+		"saghen/blink.cmp",
+		dependencies = { "rafamadriz/friendly-snippets" },
+
+		build = "cargo build --release",
+		opts = {
+			-- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
+			-- 'super-tab' for mappings similar to vscode (tab to accept)
+			-- 'enter' for enter to accept
+			-- 'none' for no mappings
+			--
+			-- All presets have the following mappings:
+			-- C-space: Open menu or open docs if already open
+			-- C-n/C-p or Up/Down: Select next/previous item
+			-- C-e: Hide menu
+			-- C-k: Toggle signature help (if signature.enabled = true)
+			--
+			-- See :h blink-cmp-config-keymap for defining your own keymap
+			keymap = { preset = "super-tab" },
+
+			appearance = {
+				nerd_font_variant = "mono",
+			},
+
+			-- (Default) Only show the documentation popup when manually triggered
+			completion = { documentation = { auto_show = true } },
+
+			sources = {
+				default = { "mooncake", "lsp", "path", "snippets", "buffer" },
+				providers = {
+					mooncake = {
+						name = "mooncakes",
+						module = "moonbit.mooncakes.completion.blink",
+						opts = { max_items = 100 },
+					},
+				},
+			},
+
+			fuzzy = { implementation = "prefer_rust_with_warning" },
+		},
+		opts_extend = { "sources.default" },
+	},
+
+	-- Metals (Scala LSP)
+	{
+		"scalameta/nvim-metals",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"saghen/blink.cmp",
+		},
+		ft = { "scala", "sbt", "java" },
+		opts = function()
+			local metals_config = require("metals").bare_config()
+			metals_config.capabilities = require("blink.cmp").get_lsp_capabilities()
+			metals_config.on_attach = function(client, bufnr)
+				-- your on_attach function
+			end
+
+			return metals_config
+		end,
+		config = function(self, metals_config)
+			local nvim_metals_group = vim.api.nvim_create_augroup("nvim-metals", { clear = true })
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = self.ft,
+				callback = function()
+					require("metals").initialize_or_attach(metals_config)
+				end,
+				group = nvim_metals_group,
+			})
+		end,
+	},
+
+	-- Moonbit
+	{
+		"moonbit-community/moonbit.nvim",
+		ft = { "moonbit" },
+		opts = {
+			mooncakes = {
+				virtual_text = true, -- virtual text showing suggestions
+				use_local = true, -- recommended, use index under ~/.moon
+			},
+			-- optionally disable the treesitter integration
+			treesitter = {
+				enabled = true,
+				-- Set false to disable automatic installation and updating of parsers.
+				auto_install = true,
+			},
+			-- configure the language server integration
+			-- set `lsp = false` to disable the language server integration
+			lsp = {
+				-- provide an `on_attach` function to run when the language server starts
+				on_attach = function(client, bufnr) end,
+				-- provide client capabilities to pass to the language server
+				capabilities = vim.lsp.protocol.make_client_capabilities(),
+			},
+		},
+	},
 }
