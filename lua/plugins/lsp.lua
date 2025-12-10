@@ -263,17 +263,16 @@ return {
 				filetypes = { "sh", "bash", "zsh" },
 			})
 
-			-- Ballerina
-			lspconfig.ballerina.setup({
-				capabilities = capabilities,
-				cmd = { "bal", "start-language-server" },
-				filetypes = { "ballerina" },
-				root_dir = lspconfig.util.root_pattern("Ballerina.toml"),
-			})
-
 			-- Docker Compose LSP
 			lspconfig.docker_compose_language_service.setup({
 				capabilities = capabilities,
+			})
+
+			-- Jsonnet
+			lspconfig.jsonnet.setup({
+				capabilities = capabilities,
+				filetypes = { "jsonnet", "--stdio" },
+				cmd = { "jsonnet-language-server" },
 			})
 
 			-- Markdown LSP (markdown-oxide)
