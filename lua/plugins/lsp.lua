@@ -94,7 +94,6 @@ return {
 		},
 		config = function()
 			-- LSPの設定
-			local lspconfig = require("lspconfig")
 			local blink = require("blink.cmp")
 
 			-- blink.cmpのcapabilitiesを取得
@@ -115,31 +114,34 @@ return {
 				-- on_attach 共通設定
 			end)
 
-			-- lspconfigで定義されていないLSPサーバーの設定
+			-- lsp-configで定義されていないLSPサーバーの設定
 
 			-- Protobuf LSP
-			lspconfig.buf_ls.setup({
+			vim.lsp.config.buf_ls = {
 				capabilities = capabilities,
 				filetypes = { "proto" },
-				root_dir = lspconfig.util.root_pattern(".git"),
-			})
+				root_markers = { ".git" },
+			}
+      vim.lsp.enable("buf_ls")
 
 			-- Terraform / Opentofu
 			vim.cmd("autocmd BufNewFile,BufRead *.tf set filetype=terraform")
-			lspconfig.terraformls.setup({
+			vim.lsp.config.terraformls = {
 				capabilities = capabilities,
 				filetypes = { "terraform", "tf" },
-			})
+			}
+      vim.lsp.enable("terraformls")
 
 			-- Yaml-Language-Server
-			lspconfig.yamlls.setup({
+			vim.lsp.config.yamlls = {
 				capabilities = capabilities,
 				filetypes = { "yaml", "yml" },
 				cmd = { "yaml-language-server", "--stdio" },
-			})
+			}
+      vim.lsp.enable("yamlls")
 
 			-- Lua LSP (lua-language-server)
-			lspconfig.lua_ls.setup({
+			vim.lsp.config.lua_ls = {
 				capabilities = capabilities,
 				settings = {
 					Lua = {
@@ -157,10 +159,11 @@ return {
 						},
 					},
 				},
-			})
+			}
+      vim.lsp.enable("lua_ls")
 
 			-- Python LSP (pylsp)
-			lspconfig.pylsp.setup({
+			vim.lsp.config.pylsp = {
 				capabilities = capabilities,
 				settings = {
 					pylsp = {
@@ -172,10 +175,11 @@ return {
 						},
 					},
 				},
-			})
+			}
+      vim.lsp.enable("pylsp")
 
 			-- Rust LSP (rust-analyzer)
-			lspconfig.rust_analyzer.setup({
+			vim.lsp.config.rust_analyzer = {
 				capabilities = capabilities,
 				settings = {
 					["rust-analyzer"] = {
@@ -187,10 +191,11 @@ return {
 						},
 					},
 				},
-			})
+			}
+      vim.lsp.enable("rust_analyzer")
 
 			-- Go LSP (gopls)
-			lspconfig.gopls.setup({
+			vim.lsp.config.gopls = {
 				capabilities = capabilities,
 				cmd = { "gopls" },
 				filetypes = { "go", "gomod", "gowork", "gotmpl" },
@@ -203,10 +208,11 @@ return {
 						},
 					},
 				},
-			})
+			}
+      vim.lsp.enable("gopls")
 
 			-- C/C++ LSP (clangd)
-			lspconfig.clangd.setup({
+			vim.lsp.config.clangd = {
 				capabilities = capabilities,
 				cmd = {
 					"clangd",
@@ -218,17 +224,18 @@ return {
 					"--fallback-style=llvm",
 				},
 				filetypes = { "c", "cpp", "objc", "objcpp" },
-				root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
-			})
+				root_markers = { "compile_commands.json", "compile_flags.txt", ".git" },
+			}
+      vim.lsp.enable("clangd")
 
 			-- elixir-ls
-			lspconfig.elixirls.setup({
+			vim.lsp.config.elixirls = {
 				capabilities = capabilities,
 				cmd = {
 					"elixir-ls",
 				},
 				filetypes = { "elixir", "eelixir", "heex", "surface" },
-				root_dir = lspconfig.util.root_pattern("mix.exs", ".git"),
+				root_markers = { "mix.exs", ".git" },
 				settings = {
 					elixirLs = {
 						suggestSpecs = true,
@@ -241,10 +248,11 @@ return {
 						mixFormat = true,
 					},
 				},
-			})
+			}
+      vim.lsp.enable("elixirls")
 
 			-- HTML LSP
-			lspconfig.html.setup({
+			vim.lsp.config.html = {
 				capabilities = capabilities,
 				filetypes = { "html" },
 				init_options = {
@@ -255,81 +263,63 @@ return {
 					},
 					provideFormatter = true,
 				},
-			})
+			}
+      vim.lsp.enable("html")
 
 			-- Bash LSP
-			lspconfig.bashls.setup({
+			vim.lsp.config.bashls = {
 				capabilities = capabilities,
 				filetypes = { "sh", "bash", "zsh" },
-			})
+			}
+      vim.lsp.enable("bashls")
 
 			-- Docker Compose LSP
-			lspconfig.docker_compose_language_service.setup({
+			vim.lsp.config.docker_compose_language_service = {
 				capabilities = capabilities,
-			})
-
-			-- Jsonnet
-			lspconfig.jsonnet.setup({
-				capabilities = capabilities,
-				filetypes = { "jsonnet", "--stdio" },
-				cmd = { "jsonnet-language-server" },
-			})
+			}
+      vim.lsp.enable("docker_compose_language_service")
 
 			-- Markdown LSP (markdown-oxide)
-			lspconfig.markdown_oxide.setup({
+			vim.lsp.config.markdown_oxide = {
 				capabilities = capabilities,
-			})
+			}
+      vim.lsp.enable("markdown_oxide")
 
 			-- Node.js
 			local is_node_dir = function()
-				return lspconfig.util.root_pattern("package.json")(vim.fn.getcwd())
+				return vim.fs.find("package.json", { upward = true })[1] ~= nil
 			end
 
 			-- ts_ls
-			local ts_opts = {
+      vim.lsp.config.ts_ls = {
 				capabilities = capabilities,
-				init_options = {
+        init_options = {
 					preferences = {
 						importModuleSpecifierPreference = "relative",
 						includeCompletionsForModuleExports = "auto",
 					},
-				},
-				settings = {
-					typescript = {
-						preferences = {
-							importModuleSpecifier = "relative",
-						},
-						suggest = {
-							includeCompletionsForModuleExports = true,
-						},
-					},
-					javascript = {
-						preferences = {
-							importModuleSpecifier = "relative",
-						},
-						suggest = {
-							includeCompletionsForModuleExports = true,
-						},
-					},
-				},
-			}
-			ts_opts.on_attach = function(client)
-				if not is_node_dir() then
-					client.stop(true)
-				end
-			end
-			lspconfig.ts_ls.setup(ts_opts)
+        },
+        on_attach = function(client)
+          if not is_node_dir() then
+            client.stop(true)
+          end
+        end
+      }
+      vim.lsp.enable("ts_ls")
 
 			-- denols
-			local deno_opts = {
+      vim.lsp.config.denols = {
 				capabilities = capabilities,
-				root_dir = lspconfig.util.root_pattern(
+
+      }
+			local deno_opts = {
+				root_markers = {
 					"deno.json",
 					"deno.jsonc",
 					"tsconfig.json",
 					"jsconfig.json",
 					".git"
-				),
+				},
 				init_options = {
 					lint = true,
 					unstable = true,
@@ -349,13 +339,14 @@ return {
 						},
 					},
 				},
+        on_attach = function(client)
+          if is_node_dir() then
+            client.stop(true)
+          end
+        end
 			}
-			deno_opts.on_attach = function(client)
-				if is_node_dir() then
-					client.stop(true)
-				end
-			end
-			lspconfig.denols.setup(deno_opts)
+      vim.lsp.enable("denols")
+
 		end,
 	},
 

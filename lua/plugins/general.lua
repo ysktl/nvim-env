@@ -129,6 +129,32 @@ return {
 		end,
 	},
 
+	-- Oil.nvim
+	{
+		"stevearc/oil.nvim",
+		---@module 'oil'
+		---@type oil.SetupOpts
+		opts = {},
+		-- Optional dependencies
+		dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+		lazy = false,
+		config = function()
+			require("oil").setup({
+				view_options = {
+					show_hidden = true,
+				},
+			})
+			vim.keymap.set("n", "<leader>oi", function()
+				require("oil").open_float()
+			end, { desc = "[Oil]: Open parent directory" })
+			vim.keymap.set("n", "<leader>oo", function()
+				require("oil").open_float(".")
+			end, { desc = "[Oil]: Open current directory" })
+		end,
+	},
+
 	-- サイドバー系
 
 	-- Snacks.nvim
@@ -144,7 +170,7 @@ return {
 					{
 						{
 							section = "terminal",
-							cmd = "figlet -f o8 Kawaii | lolcat; sleep .1",
+							cmd = "figlet -f O8 Kawaii | lolcat; sleep .1",
 						},
 						{ section = "keys", gap = 1, padding = 1 },
 						{ section = "startup" },
@@ -660,9 +686,6 @@ return {
 		"iamcco/markdown-preview.nvim",
 		cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
 		ft = { "markdown" },
-		build = function()
-			vim.fn["mkdp#util#install"]()
-		end,
 		keys = {
 			{
 				"<leader>mm",
@@ -670,6 +693,10 @@ return {
 				desc = "[MarkdownPreview]: markdownをブラウザで開く",
 			},
 		},
+		build = "cd app && yarn install",
+		init = function()
+			vim.g.mkdp_filetypes = { "markdown" }
+		end,
 	},
 
 	-- GitHub Copilot
@@ -695,6 +722,7 @@ return {
 	-- AI Coding
 	{
 		"olimorris/codecompanion.nvim",
+		version = "v17.33.0",
 		opts = {
 			language = "japanese",
 			display = {
