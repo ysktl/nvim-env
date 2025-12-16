@@ -304,10 +304,7 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		lazy = false,
 		build = ":TSUpdate",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter-textobjects",
-		},
-		main = "nvim-treesitter.configs",
+    branch = "main",
 		opts = {
 			highlight = { enabled = true },
 		},
