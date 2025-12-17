@@ -302,12 +302,9 @@ return {
 	-- ハイライト表示
 	{
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
 		lazy = false,
 		build = ":TSUpdate",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter-textobjects",
-		},
-		main = "nvim-treesitter.configs",
 		opts = {
 			highlight = { enabled = true },
 		},
