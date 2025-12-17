@@ -122,7 +122,7 @@ return {
 				filetypes = { "proto" },
 				root_markers = { ".git" },
 			}
-      vim.lsp.enable("buf_ls")
+			vim.lsp.enable("buf_ls")
 
 			-- Terraform / Opentofu
 			vim.cmd("autocmd BufNewFile,BufRead *.tf set filetype=terraform")
@@ -130,7 +130,7 @@ return {
 				capabilities = capabilities,
 				filetypes = { "terraform", "tf" },
 			}
-      vim.lsp.enable("terraformls")
+			vim.lsp.enable("terraformls")
 
 			-- Yaml-Language-Server
 			vim.lsp.config.yamlls = {
@@ -138,7 +138,7 @@ return {
 				filetypes = { "yaml", "yml" },
 				cmd = { "yaml-language-server", "--stdio" },
 			}
-      vim.lsp.enable("yamlls")
+			vim.lsp.enable("yamlls")
 
 			-- Lua LSP (lua-language-server)
 			vim.lsp.config.lua_ls = {
@@ -160,7 +160,7 @@ return {
 					},
 				},
 			}
-      vim.lsp.enable("lua_ls")
+			vim.lsp.enable("lua_ls")
 
 			-- Python LSP (pylsp)
 			vim.lsp.config.pylsp = {
@@ -176,7 +176,7 @@ return {
 					},
 				},
 			}
-      vim.lsp.enable("pylsp")
+			vim.lsp.enable("pylsp")
 
 			-- Rust LSP (rust-analyzer)
 			vim.lsp.config.rust_analyzer = {
@@ -192,7 +192,7 @@ return {
 					},
 				},
 			}
-      vim.lsp.enable("rust_analyzer")
+			vim.lsp.enable("rust_analyzer")
 
 			-- Go LSP (gopls)
 			vim.lsp.config.gopls = {
@@ -209,7 +209,7 @@ return {
 					},
 				},
 			}
-      vim.lsp.enable("gopls")
+			vim.lsp.enable("gopls")
 
 			-- C/C++ LSP (clangd)
 			vim.lsp.config.clangd = {
@@ -226,7 +226,7 @@ return {
 				filetypes = { "c", "cpp", "objc", "objcpp" },
 				root_markers = { "compile_commands.json", "compile_flags.txt", ".git" },
 			}
-      vim.lsp.enable("clangd")
+			vim.lsp.enable("clangd")
 
 			-- elixir-ls
 			vim.lsp.config.elixirls = {
@@ -249,7 +249,7 @@ return {
 					},
 				},
 			}
-      vim.lsp.enable("elixirls")
+			vim.lsp.enable("elixirls")
 
 			-- HTML LSP
 			vim.lsp.config.html = {
@@ -264,26 +264,26 @@ return {
 					provideFormatter = true,
 				},
 			}
-      vim.lsp.enable("html")
+			vim.lsp.enable("html")
 
 			-- Bash LSP
 			vim.lsp.config.bashls = {
 				capabilities = capabilities,
 				filetypes = { "sh", "bash", "zsh" },
 			}
-      vim.lsp.enable("bashls")
+			vim.lsp.enable("bashls")
 
 			-- Docker Compose LSP
 			vim.lsp.config.docker_compose_language_service = {
 				capabilities = capabilities,
 			}
-      vim.lsp.enable("docker_compose_language_service")
+			vim.lsp.enable("docker_compose_language_service")
 
 			-- Markdown LSP (markdown-oxide)
 			vim.lsp.config.markdown_oxide = {
 				capabilities = capabilities,
 			}
-      vim.lsp.enable("markdown_oxide")
+			vim.lsp.enable("markdown_oxide")
 
 			-- Node.js
 			local is_node_dir = function()
@@ -291,34 +291,33 @@ return {
 			end
 
 			-- ts_ls
-      vim.lsp.config.ts_ls = {
+			vim.lsp.config.ts_ls = {
 				capabilities = capabilities,
-        init_options = {
+				init_options = {
 					preferences = {
 						importModuleSpecifierPreference = "relative",
 						includeCompletionsForModuleExports = "auto",
 					},
-        },
-        on_attach = function(client)
-          if not is_node_dir() then
-            client.stop(true)
-          end
-        end
-      }
-      vim.lsp.enable("ts_ls")
+				},
+				on_attach = function(client)
+					if not is_node_dir() then
+						client.stop(true)
+					end
+				end,
+			}
+			vim.lsp.enable("ts_ls")
 
 			-- denols
-      vim.lsp.config.denols = {
+			vim.lsp.config.denols = {
 				capabilities = capabilities,
-
-      }
+			}
 			local deno_opts = {
 				root_markers = {
 					"deno.json",
 					"deno.jsonc",
 					"tsconfig.json",
 					"jsconfig.json",
-					".git"
+					".git",
 				},
 				init_options = {
 					lint = true,
@@ -339,14 +338,13 @@ return {
 						},
 					},
 				},
-        on_attach = function(client)
-          if is_node_dir() then
-            client.stop(true)
-          end
-        end
+				on_attach = function(client)
+					if is_node_dir() then
+						client.stop(true)
+					end
+				end,
 			}
-      vim.lsp.enable("denols")
-
+			vim.lsp.enable("denols")
 		end,
 	},
 
@@ -376,17 +374,6 @@ return {
 
 			-- (Default) Only show the documentation popup when manually triggered
 			completion = { documentation = { auto_show = true } },
-
-			sources = {
-				default = { "mooncake", "lsp", "path", "snippets", "buffer" },
-				providers = {
-					mooncake = {
-						name = "mooncakes",
-						module = "moonbit.mooncakes.completion.blink",
-						opts = { max_items = 100 },
-					},
-				},
-			},
 
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
@@ -420,31 +407,5 @@ return {
 				group = nvim_metals_group,
 			})
 		end,
-	},
-
-	-- Moonbit
-	{
-		"moonbit-community/moonbit.nvim",
-		ft = { "moonbit" },
-		opts = {
-			mooncakes = {
-				virtual_text = true, -- virtual text showing suggestions
-				use_local = true, -- recommended, use index under ~/.moon
-			},
-			-- optionally disable the treesitter integration
-			treesitter = {
-				enabled = true,
-				-- Set false to disable automatic installation and updating of parsers.
-				auto_install = true,
-			},
-			-- configure the language server integration
-			-- set `lsp = false` to disable the language server integration
-			lsp = {
-				-- provide an `on_attach` function to run when the language server starts
-				on_attach = function(client, bufnr) end,
-				-- provide client capabilities to pass to the language server
-				capabilities = vim.lsp.protocol.make_client_capabilities(),
-			},
-		},
 	},
 }
