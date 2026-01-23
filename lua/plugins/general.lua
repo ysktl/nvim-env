@@ -1021,4 +1021,19 @@ return {
       })
     end,
   },
+  -- nvim-dap
+  {
+    "rcarriga/nvim-dap-ui",
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "nvim-neotest/nvim-nio",
+      { "theHamsta/nvim-dap-virtual-text", opts = {} },
+    },
+    opts = {},
+  },
+  -- Godot
+  {
+    'Mathijs-Bakker/godotdev.nvim',
+    dependencies = { 'nvim-lspconfig', 'nvim-dap', 'nvim-dap-ui', 'nvim-treesitter' },
+  },
 }
