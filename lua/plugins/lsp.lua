@@ -296,9 +296,6 @@ return {
 		opts = function()
 			local metals_config = require("metals").bare_config()
 			metals_config.capabilities = require("blink.cmp").get_lsp_capabilities()
-			metals_config.on_attach = function(client, bufnr)
-				-- your on_attach function
-			end
 
 			return metals_config
 		end,
@@ -321,37 +318,4 @@ return {
     opts = {},
   },
 
-  -- Pkl
-  {
-    "apple/pkl-neovim",
-    lazy = true,
-    ft = "pkl",
-    dependencies = {
-      {
-        "nvim-treesitter/nvim-treesitter",
-        build = function(_)
-          vim.cmd("TSUpdate")
-        end,
-      },
-      "L3MON4D3/LuaSnip",
-    },
-    build = function()
-      require('pkl-neovim').init()
-
-      -- Set up syntax highlighting.
-      vim.cmd("TSInstall pkl")
-    end,
-    config = function()
-      -- Set up snippets.
-      require("luasnip.loaders.from_snipmate").lazy_load()
-
-      -- Configure pkl-lsp
-      vim.g.pkl_neovim = {
-        start_command = { "java", "-jar", "/path/to/pkl-lsp.jar" },
-        -- or if pkl-lsp is installed with brew:
-        -- start_command = { "pkl-lsp" },
-        pkl_cli_path = "/path/to/pkl"
-      }
-    end,
-  },
 }

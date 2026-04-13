@@ -170,7 +170,7 @@ return {
 					{
 						{
 							section = "terminal",
-							cmd = "figlet -f O8 Kawaii | lolcat; sleep .1",
+							cmd = "figlet -f o8 Kawaii | lolcat; sleep .1",
 						},
 						{ section = "keys", gap = 1, padding = 1 },
 						{ section = "startup" },
