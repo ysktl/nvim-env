@@ -726,7 +726,7 @@ return {
             win = {
               input = {
                 keys = {
-                  ["<leader>li"] = { "opencode_send", mode = { "n", "i" } },
+                  ["<leader>li"] = { "[OpenCode] opencode_send", mode = { "n", "i" } },
                 },
               },
             },
@@ -743,19 +743,19 @@ return {
       vim.o.autoread = true -- Required for `opts.events.reload`
 
       -- Recommended/example keymaps
-      vim.keymap.set({ "n", "x" }, "<leader>lo", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "Ask opencode…" })
-      vim.keymap.set({ "n", "x" }, "<leader>ll", function() require("opencode").select() end,                          { desc = "Execute opencode action…" })
-      vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end,                          { desc = "Toggle opencode" })
+      vim.keymap.set({ "n", "x" }, "<leader>lo", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "[OpenCode] Ask opencode…" })
+      vim.keymap.set({ "n", "x" }, "<leader>ll", function() require("opencode").select() end,                          { desc = "[OpenCode] AExecute opencode action…" })
+      vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end,                          { desc = "[OpenCode] AToggle opencode" })
 
-      vim.keymap.set({ "n", "x" }, "go",  function() return require("opencode").operator("@this ") end,        { desc = "Add range to opencode", expr = true })
-      vim.keymap.set("n",          "goo", function() return require("opencode").operator("@this ") .. "_" end, { desc = "Add line to opencode", expr = true })
+      vim.keymap.set({ "n", "x" }, "go",  function() return require("opencode").operator("@this ") end,        { desc = "[OpenCode] AAdd range to opencode", expr = true })
+      vim.keymap.set("n",          "goo", function() return require("opencode").operator("@this ") .. "_" end, { desc = "[OpenCode] AAdd line to opencode", expr = true })
 
-      vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("session.half.page.up") end,   { desc = "Scroll opencode up" })
-      vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("session.half.page.down") end, { desc = "Scroll opencode down" })
+      vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("session.half.page.up") end,   { desc = "[OpenCode] AScroll opencode up" })
+      vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("session.half.page.down") end, { desc = "[OpenCode] AScroll opencode down" })
 
       -- You may want these if you use the opinionated `<C-a>` and `<C-x>` keymaps above — otherwise consider `<leader>o…` (and remove terminal mode from the `toggle` keymap)
-      vim.keymap.set("n", "+", "<leader>lk", { desc = "Increment under cursor", noremap = true })
-      vim.keymap.set("n", "-", "<leader>lj", { desc = "Decrement under cursor", noremap = true })
+      vim.keymap.set("n", "+", "<leader>lk", { desc = "[OpenCode] AIncrement under cursor", noremap = true })
+      vim.keymap.set("n", "-", "<leader>lj", { desc = "[OpenCode] ADecrement under cursor", noremap = true })
     end,
   },
 
