@@ -157,6 +157,8 @@ return {
 
 	-- サイドバー系
 
+
+
 	-- Snacks.nvim
 	{
 		"folke/snacks.nvim",
@@ -168,10 +170,7 @@ return {
 			dashboard = {
 				sections = {
 					{
-						{
-							section = "terminal",
-							cmd = "figlet -f o8 Kawaii -d /usr/share/figlet | lolcat 2>/dev/null; sleep .1",
-						},
+            { section = "header", text = "neovim" },
 						{ section = "keys", gap = 1, padding = 1 },
 						{ section = "startup" },
 					},
