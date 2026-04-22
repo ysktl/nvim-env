@@ -726,7 +726,7 @@ return {
             win = {
               input = {
                 keys = {
-                  ["<leader>li"] = { "[OpenCode] opencode_send", mode = { "n", "i" } },
+                  ["<leader>lh"] = { "[OpenCode] opencode_send", mode = { "n", "i" } },
                 },
               },
             },
