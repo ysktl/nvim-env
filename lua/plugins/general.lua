@@ -299,45 +299,6 @@ return {
 		end,
 	},
 
-	-- ハイライト表示
-	{
-		"nvim-treesitter/nvim-treesitter",
-		branch = "main",
-		lazy = false,
-		build = ":TSUpdate",
-		opts = {
-			highlight = { enabled = true },
-		},
-		config = function()
-			require("nvim-treesitter").setup()
-
-			vim.api.nvim_create_autocmd("FileType", {
-				group = vim.api.nvim_create_augroup("vim-treesitter-start", {}),
-				callback = function(ctx)
-					pcall(vim.treesitter.start)
-				end,
-			})
-			vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-			vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-		end,
-	},
-	-- 画面上部にコードブロックを表示
-	{
-		"nvim-treesitter/nvim-treesitter-context",
-		dependencies = { "nvim-treesitter/nvim-treesitter" },
-		config = function()
-			require("treesitter-context").setup()
-		end,
-	},
-
-	-- HTMLなどのタグを自動で閉じる
-	{
-		"windwp/nvim-ts-autotag",
-		dependencies = { "nvim-treesitter/nvim-treesitter" },
-		config = function()
-			require("nvim-ts-autotag").setup({})
-		end,
-	},
 
 	-- スクロールバー
 	{
@@ -581,39 +542,6 @@ return {
 		},
 	},
 
-	-- コードのアウトライン表示
-	{
-		"stevearc/aerial.nvim",
-		opts = {},
-		-- Optional dependencies
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"nvim-tree/nvim-web-devicons",
-		},
-		config = function()
-			require("aerial").setup({
-				backends = { "treesitter", "lsp" },
-				show_guides = true,
-				show_guide_icons = true,
-				show_cursor = true,
-				show_unlisted = false,
-				close_on_select = true,
-				filter_kind = false,
-				keymaps = {
-					["<CR>"] = "actions.jump",
-					["<leader>v"] = "actions.jump_vsplit",
-					["<leader>s"] = "actions.jump_split",
-					["<leader>t"] = "actions.jump_tab",
-					["<leader>r"] = "actions.rename",
-					["<leader>d"] = "actions.peek_definition",
-					["<leader>f"] = "actions.focus",
-					["<leader>F"] = "actions.jump_quickfix",
-					["<leader>h"] = "actions.hover",
-				},
-			})
-			vim.keymap.set("n", "<leader>b", "<cmd>AerialToggle!<CR>", { desc = "[Aerial]: Toggle Aerial" })
-		end,
-	},
 
 	-- インラインでdiagnosticメッセージを表示
 	{
@@ -651,30 +579,6 @@ return {
 			vim.keymap.set({ "n", "x", "o" }, "<Leader>ff", function()
 				require("flash").jump()
 			end, { desc = "[Flash]: Jump" })
-			vim.keymap.set({ "n", "x", "o" }, "<Leader>ft", function()
-				require("flash").treesitter()
-			end, { desc = "[Flash]: Treesiter" })
-			vim.keymap.set({ "n", "x", "o" }, "<Leader>fs", function()
-				require("flash").treesitter_search()
-			end, { desc = "[Flash]: Treesitter Search" })
-		end,
-	},
-
-	-- markdownの描画をリッチにする
-	{
-		"MeanderingProgrammer/render-markdown.nvim",
-		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
-		opts = {},
-		ft = { "markdown", "markdown.mdx", "Avante", "codecompanion" },
-		keys = {
-			{
-				"<leader>mn",
-				":RenderMarkdown toggle<CR>",
-				desc = "[RenderMarkdown]: Markdown表示切替",
-			},
-		},
-		config = function()
-			require("render-markdown").setup({})
 		end,
 	},
 
@@ -711,7 +615,6 @@ return {
 		},
 		dependencies = {
 			"nvim-lua/plenary.nvim",
-			"nvim-treesitter/nvim-treesitter",
 		},
 		config = function()
 			require("codecompanion").setup()
@@ -1082,10 +985,5 @@ return {
       { "theHamsta/nvim-dap-virtual-text", opts = {} },
     },
     opts = {},
-  },
-  -- Godot
-  {
-    'Mathijs-Bakker/godotdev.nvim',
-    dependencies = { 'nvim-lspconfig', 'nvim-dap', 'nvim-dap-ui', 'nvim-treesitter' },
   },
 }
